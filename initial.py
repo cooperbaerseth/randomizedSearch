@@ -34,6 +34,7 @@ neuralNet.add(Dense(50, activation='sigmoid', input_dim=X_train.shape[1]))
 neuralNet.add(Dense(50, activation='sigmoid'))
 neuralNet.add(Dense(10, activation='softmax'))
 neuralNet.compile(SGD(), loss='categorical_crossentropy', metrics=['accuracy'])
+neuralNet.summary()
 
 # Train and evaluate model
 neuralNet.fit(X_train, Y_train, epochs=20, batch_size=128)
