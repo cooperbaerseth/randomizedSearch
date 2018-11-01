@@ -4,6 +4,7 @@ import tensorflow as tf
 from keras import backend
 from keras.utils import np_utils
 from keras.datasets import mnist
+from keras.datasets import boston_housing
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import SGD
@@ -27,6 +28,7 @@ def neuralNet_eval(weights):
 
     # append models
     models.append(mnist_neuralNet)
+    models.append(boston_neuralNet)
 
     # find model that matches weights
     model = None
@@ -44,7 +46,9 @@ def neuralNet_eval(weights):
 
     return model.evaluate(x_test, y_test)[0]
 
+##################
 # MNIST NEURAL NET
+##################
 
 # Load mnist
 (x_train_mnist, y_train_mnist), (x_test_mnist, y_test_mnist) = mnist.load_data()
@@ -76,6 +80,29 @@ mnist_init_weights = mnist_nn_model.get_weights()
 # weights = mnist_nerualNet.get_weights()
 # in_shape = mnist_nerualNet.input_shape
 # mnist_nerualNet.summary()
+
+##############################
+# BOSTON HOUSING PRICE DATASET
+##############################
+
+# Load mnist
+(X_train_boston, Y_train_boston), (X_test_boston, Y_test_boston) = boston_housing.load_data()
+
+# Declare Keras model
+boston_nn_model = Sequential()
+boston_nn_model.add(Dense(X_train_boston.shape[1], activation='sigmoid', input_dim=X_train_boston.shape[1]))
+boston_nn_model.add(Dense(1, activation='sigmoid'))
+boston_nn_model.compile(SGD(), loss='mean_squared_error', metrics=['accuracy'])
+
+# Package model with test data
+boston_neuralNet = modelPackage(boston_nn_model, X_test_boston, Y_test_boston)
+
+# Neural Net Initial Weights
+boston_init_weights = boston_nn_model.get_weights()
+
+# weights = boston_nerualNet.get_weights()
+# in_shape = boston_nerualNet.input_shape
+# boston_nerualNet.summary()
 
 
 #raw_input('Press Enter to exit')
