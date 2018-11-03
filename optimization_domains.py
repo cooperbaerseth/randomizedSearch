@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from keras import backend
 from keras.utils import np_utils
@@ -29,6 +30,7 @@ def neuralNet_eval(weights):
     # append models
     models.append(mnist_neuralNet)
     models.append(boston_neuralNet)
+    models.append(toy_gauss_neuralNet)
 
     # find model that matches weights
     model = None
@@ -44,7 +46,7 @@ def neuralNet_eval(weights):
     # set weights and return loss
     model.set_weights(weights)
 
-    return model.evaluate(x_test, y_test)[0]
+    return model.evaluate(x_test, y_test)
 
 ##################
 # MNIST NEURAL NET
@@ -85,7 +87,7 @@ mnist_init_weights = mnist_nn_model.get_weights()
 # BOSTON HOUSING PRICE DATASET
 ##############################
 
-# Load mnist
+# Load Boston
 (X_train_boston, Y_train_boston), (X_test_boston, Y_test_boston) = boston_housing.load_data()
 
 # Declare Keras model
@@ -100,9 +102,60 @@ boston_neuralNet = modelPackage(boston_nn_model, X_test_boston, Y_test_boston)
 # Neural Net Initial Weights
 boston_init_weights = boston_nn_model.get_weights()
 
-# weights = boston_nerualNet.get_weights()
-# in_shape = boston_nerualNet.input_shape
-# boston_nerualNet.summary()
+# weights = boston_nn_model.get_weights()
+# in_shape = boston_nn_model.input_shape
+#boston_nn_model.summary()
+
+
+######################
+# TOY GAUSSIAN DATASET
+######################
+
+# Generate toy data
+mean1 = [-4, -4]
+cov1 = [[1, 0], [0, 1]]
+c1 = np.random.multivariate_normal(mean1, cov1, 5000)
+
+mean2 = [4, 4]
+cov2 = [[1, 0], [0, 1]]
+c2 = np.random.multivariate_normal(mean2, cov2, 5000)
+
+plt.plot(c1[:][:,0], c1[:][:,1], 'x')
+plt.plot(c2[:][:,0], c2[:][:,1], 'x')
+plt.axis('equal')
+#plt.show()
+
+# Create dataset
+gaus_toyData = np.zeros((c1.shape[0]+c2.shape[0], 2))
+gaus_toyLabels = np.zeros(c1.shape[0]+c2.shape[0], int)
+gaus_toyData[0:c1.shape[0]] = c1
+gaus_toyLabels[0:c1.shape[0]] = 0
+gaus_toyData[c1.shape[0]:] = c2
+gaus_toyLabels[c1.shape[0]:] = 1
+
+# Shuffle data
+s = np.arange(gaus_toyData.shape[0])
+np.random.shuffle(s)
+gaus_toyData = gaus_toyData[s]
+gaus_toyLabels = gaus_toyLabels[s]
+
+# Split into train and test
+X_train_toyGaus, X_test_toyGaus, Y_train_toyGaus, Y_test_toyGaus = train_test_split(gaus_toyData, gaus_toyLabels, test_size=0.33, random_state=42)
+Y_train_toyGaus = np_utils.to_categorical(Y_train_toyGaus, 2)
+Y_test_toyGaus = np_utils.to_categorical(Y_test_toyGaus, 2)
+
+# Declare Keras model
+toy_gauss_nn_model = Sequential()
+toy_gauss_nn_model.add(Dense(1, activation='sigmoid', input_dim=X_train_toyGaus.shape[1]))
+toy_gauss_nn_model.add(Dense(2, activation='softmax'))
+toy_gauss_nn_model.compile(SGD(), loss='categorical_crossentropy', metrics=['accuracy'])
+#toy_gauss_nn_model.summary()
+
+# Package model with test data
+toy_gauss_neuralNet = modelPackage(toy_gauss_nn_model, X_test_toyGaus, Y_test_toyGaus)
+
+# Neural Net Initial Weights
+toy_gauss_init_weights = toy_gauss_nn_model.get_weights()
 
 
 #raw_input('Press Enter to exit')
