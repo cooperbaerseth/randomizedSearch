@@ -60,7 +60,9 @@ def hillclimb(opt_params, eval_func, sample_size, step_size, stop_thresh, max_it
 
             # Run neighbor
             temp_fit = eval_func(run_neighbor)
-            print("Fit: " + str(temp_fit[0]) + "\nAccu: " + str(temp_fit[1]))
+            print("Fit: " + str(temp_fit[0]))
+            if temp_fit.shape[0] > 1:
+                print("Accu: " + str(temp_fit[1]))
             if temp_fit[0] < fit[0]:
                 fit[0] = temp_fit[0]
                 best_neighbor = n
@@ -122,7 +124,9 @@ def sim_annealing(opt_params, eval_func, step_size, t_start, final_temp, max_ite
 
         # Run neighbor
         temp_fit = eval_func(run_neighbor)
-        print("Fit: " + str(temp_fit[0]) + "\nAccu: " + str(temp_fit[1]))
+        print("Fit: " + str(temp_fit[0]))
+        if temp_fit.shape[0] > 1:
+            print("Accu: " + str(temp_fit[1]))
 
         # Choose neighbor or not based on annealing equation
         if temp_fit[0] < fit[0]:
@@ -292,7 +296,8 @@ def genetic_algo(opt_params, eval_func, pop_size, bounds, div_size, stop_thresh,
         print("\n\n\n\n")
         print("Iteration: " + str(iteration))
         print("Eval: " + str(results[0]))
-        print("Accu: " + str(results[1]))
+        if results.shape[0] > 1:
+            print("Accu: " + str(results[1]))
 
         iteration += 1
 
@@ -309,20 +314,34 @@ def genetic_algo(opt_params, eval_func, pop_size, bounds, div_size, stop_thresh,
 
 
 # Hillclimb
+# NN
 #hillclimb(toy_gauss_init_weights, neuralNet_eval, 40, 0.05, 0.001, 100)
 #hillclimb(boston_init_weights, neuralNet_eval, 2000, 0.05, 0.001, 100)
 #hillclimb(mnist_init_weights, neuralNet_eval, 50, 0.05, 0.001, 100)
 
+# Classic Opt
+#hillclimb(classic_optParams, ackley, 40, 0.05, 0.001, 100)
+#hillclimb(classic_optParams, himmelblau, 40, 0.05, 0.001, 100)
+
 
 # Simulated Annealing
+# NN
 #sim_annealing(toy_gauss_init_weights, neuralNet_eval, 0.05, 20, 2, 20000, temp_schedule='linear')
 #sim_annealing(boston_init_weights, neuralNet_eval, 0.05, 200, 0.001, 20000)
 #sim_annealing(mnist_init_weights, neuralNet_eval, 0.05, 20, 0.1, 20000, t_alpha=0.95)
 
+# Classic Opt
+#sim_annealing(classic_optParams, ackley, 0.05, 20, 2, 20000, temp_schedule='linear')
+#sim_annealing(classic_optParams, himmelblau, 0.05, 20, 2, 20000, temp_schedule='linear')
 
 # Genetic Algorithm
+# NN
 #genetic_algo(toy_gauss_init_weights, neuralNet_eval, 100, [-2, 2], 0.05, 0.001, 200)
 #genetic_algo(boston_init_weights, neuralNet_eval, 100, [-2, 2], 0.05, 0.001, 200)
-genetic_algo(mnist_init_weights, neuralNet_eval, 200, [-2, 2], 0.05, 0.001, 200)
+#genetic_algo(mnist_init_weights, neuralNet_eval, 200, [-2, 2], 0.05, 0.001, 200)
+
+# Classic Opt
+#genetic_algo(classic_optParams, ackley, 20, [domain_x[0], domain_x[1]], 0.05, 0.001, 200)
+#genetic_algo(classic_optParams, himmelblau, 20, [domain_x[0], domain_x[1]], 0.05, 0.001, 200)
 
 

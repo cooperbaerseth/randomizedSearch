@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
 import numpy as np
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
@@ -10,16 +12,50 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import SGD
 
+#####################################
+# CLASSIC OPTIMIZATION PROBLEMS
+#####################################
+
+def ackley(X):
+    return np.array([-20*np.exp(-0.2*np.sqrt(0.5*(np.power(X[0], 2) + np.power(X[1], 2)))) \
+           - np.exp(0.5*(np.cos(2*np.pi*X[0]) + np.cos(2*np.pi*X[1]))) + np.e + 20])
+
+def himmelblau(X):
+    return np.array([(np.power((np.power(X[0], 2) + X[1] - 11), 2) + np.power((X[0] + np.power(X[1], 2) - 7), 2))])
+
+# Define domain
+domain_x = [-4, 4]
+domain_y = [-4, 4]
+
+# Visualize optimization functions
+X = np.arange(domain_x[0], domain_x[1], 0.05)
+Y = np.arange(domain_y[0], domain_y[1], 0.05)
+X_mesh, Y_mesh = np.meshgrid(X, Y)
+
+#Z = -1*ackley([X, Y])
+Z = -1*himmelblau([X_mesh, Y_mesh])
+
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+# ax.plot_surface(X_mesh, Y_mesh, Z, cmap=cm.viridis)
+# plt.show()
+#
+# plt.pause(0.05)
+# input('Press Enter to exit')
+
+
+# Initialize parameters
+classic_optParams = np.random.choice(X, 2)
+
+#####################
+# NEURAL NETWORKS
+#####################
+
 class modelPackage:
     def __init__(self, model, x_test, y_test):
         self.model = model
         self.x_test = x_test
         self.y_test = y_test
-
-
-#####################
-# NEURAL NETWORKS
-#####################
 
 def neuralNet_eval(weights):
     # This function will evaluate a neural net model based on some given weights
