@@ -61,14 +61,22 @@ def hillclimb(opt_params, eval_func, sample_size, step_size, stop_thresh, max_it
             # Run neighbor
             temp_fit = eval_func(run_neighbor)
             print("Fit: " + str(temp_fit[0]))
-            if temp_fit.shape[0] > 1:
+            if len(temp_fit) > 1:
                 print("Accu: " + str(temp_fit[1]))
             if temp_fit[0] < fit[0]:
                 fit[0] = temp_fit[0]
+                if len(temp_fit) > 1:
+                    fit[1] = temp_fit[1]
                 best_neighbor = n
         flat_params = neighbors[n]
         i += 1
         print("Iter " + str(i) + ": \n" + "Fit: " + str(round(fit[0], 6)) + "\n" + "prev_fit - fit: " + str(prev_fit - fit[0]) + "\n")
+
+        # Record results
+        performance.append(round(fit[0], 6))
+        if len(temp_fit) > 1:
+            performance_accu.append(fit[1])
+
     return fit
 
 def sim_annealing(opt_params, eval_func, step_size, t_start, final_temp, max_iter, temp_schedule='exp', t_alpha=0.9995, t_delt = 0.005):
@@ -83,6 +91,7 @@ def sim_annealing(opt_params, eval_func, step_size, t_start, final_temp, max_ite
     # temp_schedule: choice of temperature schedule; can be exponential or linear
     # t_alpha: for the exponential temperature schedule, defines the rate of decrease
     # t_delt: for the linear temperature schedule, defines the rate of decrease
+
 
     # Flatten opt_params
     total = 0
@@ -125,12 +134,14 @@ def sim_annealing(opt_params, eval_func, step_size, t_start, final_temp, max_ite
         # Run neighbor
         temp_fit = eval_func(run_neighbor)
         print("Fit: " + str(temp_fit[0]))
-        if temp_fit.shape[0] > 1:
+        if len(temp_fit) > 1:
             print("Accu: " + str(temp_fit[1]))
 
         # Choose neighbor or not based on annealing equation
         if temp_fit[0] < fit[0]:
             fit[0] = temp_fit[0]
+            if len(temp_fit) > 1:
+                fit[1] = temp_fit[1]
             flat_params = neighbor
         else:
             # Annealing equation here
@@ -138,6 +149,10 @@ def sim_annealing(opt_params, eval_func, step_size, t_start, final_temp, max_ite
             choose = np.random.choice([True, False], p=[p, 1-p])
             if choose:
                 flat_params = neighbor
+                fit[0] = temp_fit[0]
+                if len(temp_fit) > 1:
+                    fit[1] = temp_fit[1]
+        temp.append(T)
         if temp_schedule == 'exp':
             T *= t_alpha
         elif temp_schedule == 'linear':
@@ -150,6 +165,11 @@ def sim_annealing(opt_params, eval_func, step_size, t_start, final_temp, max_ite
         print('\n')
 
         print("\n\n\n" + str(flat_params.max()) + "\n\n\n")
+
+        # Record results
+        performance.append(fit[0])
+        if len(fit) > 1:
+             performance_accu.append(fit[1])
 
     return fit
 
@@ -191,7 +211,7 @@ def crossover(gene0, gene1, gene_len, cross_method='point', crosspoint=None):
 
     return new_gene0, new_gene1
 
-def genetic_algo(opt_params, eval_func, pop_size, bounds, div_size, stop_thresh, max_iter):
+def genetic_algo(opt_params, eval_func, pop_size, bounds, div_size, stop_thresh, max_iter, seed=77):
     # This function uses a genetic algorith to optiize the given set of parameters with respect to the given evaluation function.
     # opt_param: parameters to optimize. These should already be initialized to fit the optimization domain
     #   - !!!Passed in as list of np arrays!!!
@@ -206,6 +226,7 @@ def genetic_algo(opt_params, eval_func, pop_size, bounds, div_size, stop_thresh,
         print("\n\n*********POPULATION SIZE MUST BE DIVISIBLE BY TWO*********\n\n")
         return
 
+    #np.random.seed(seed)
 
     # Flatten opt_params
     total = 0
@@ -296,8 +317,14 @@ def genetic_algo(opt_params, eval_func, pop_size, bounds, div_size, stop_thresh,
         print("\n\n\n\n")
         print("Iteration: " + str(iteration))
         print("Eval: " + str(results[0]))
-        if results.shape[0] > 1:
+        if len(results) > 1:
             print("Accu: " + str(results[1]))
+
+        # Record results
+        if len(results) == 1:
+            performance.append(results[0])
+        elif len(results) > 1:
+            performance_accu.append(results[1])
 
         iteration += 1
 
@@ -305,43 +332,5 @@ def genetic_algo(opt_params, eval_func, pop_size, bounds, div_size, stop_thresh,
 
     return
 
-
-
-
-'''
-*******MAIN*******
-'''
-
-
-# Hillclimb
-# NN
-#hillclimb(toy_gauss_init_weights, neuralNet_eval, 40, 0.05, 0.001, 100)
-#hillclimb(boston_init_weights, neuralNet_eval, 2000, 0.05, 0.001, 100)
-#hillclimb(mnist_init_weights, neuralNet_eval, 50, 0.05, 0.001, 100)
-
-# Classic Opt
-#hillclimb(classic_optParams, ackley, 40, 0.05, 0.001, 100)
-#hillclimb(classic_optParams, himmelblau, 40, 0.05, 0.001, 100)
-
-
-# Simulated Annealing
-# NN
-#sim_annealing(toy_gauss_init_weights, neuralNet_eval, 0.05, 20, 2, 20000, temp_schedule='linear')
-#sim_annealing(boston_init_weights, neuralNet_eval, 0.05, 200, 0.001, 20000)
-#sim_annealing(mnist_init_weights, neuralNet_eval, 0.05, 20, 0.1, 20000, t_alpha=0.95)
-
-# Classic Opt
-#sim_annealing(classic_optParams, ackley, 0.05, 20, 2, 20000, temp_schedule='linear')
-#sim_annealing(classic_optParams, himmelblau, 0.05, 20, 2, 20000, temp_schedule='linear')
-
-# Genetic Algorithm
-# NN
-#genetic_algo(toy_gauss_init_weights, neuralNet_eval, 100, [-2, 2], 0.05, 0.001, 200)
-#genetic_algo(boston_init_weights, neuralNet_eval, 100, [-2, 2], 0.05, 0.001, 200)
-#genetic_algo(mnist_init_weights, neuralNet_eval, 200, [-2, 2], 0.05, 0.001, 200)
-
-# Classic Opt
-#genetic_algo(classic_optParams, ackley, 20, [domain_x[0], domain_x[1]], 0.05, 0.001, 200)
-#genetic_algo(classic_optParams, himmelblau, 20, [domain_x[0], domain_x[1]], 0.05, 0.001, 200)
-
-
+performance = []    # holds function evaluations
+performance_accu = [] # holds accuracy of an iteration if applicable

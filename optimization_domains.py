@@ -17,27 +17,29 @@ from keras.optimizers import SGD
 #####################################
 
 def ackley(X):
-    return np.array([-20*np.exp(-0.2*np.sqrt(0.5*(np.power(X[0], 2) + np.power(X[1], 2)))) \
-           - np.exp(0.5*(np.cos(2*np.pi*X[0]) + np.cos(2*np.pi*X[1]))) + np.e + 20])
+    return np.array([-20*np.exp(-0.2*np.sqrt(0.5*(np.power(X[0], 2) + np.power(X[1], 2)))) - np.exp(0.5*(np.cos(2*np.pi*X[0]) + np.cos(2*np.pi*X[1]))) + np.e + 20])
 
 def himmelblau(X):
-    return np.array([(np.power((np.power(X[0], 2) + X[1] - 11), 2) + np.power((X[0] + np.power(X[1], 2) - 7), 2))])
+    return np.array([(np.power((np.power(X[0], 2) + X[1] - 71), 2) + np.power((X[0] + np.power(X[1], 2) - 34), 2))])
 
 # Define domain
-domain_x = [-4, 4]
-domain_y = [-4, 4]
+r = 10
+domain_x = [-r, r]
+domain_y = [-r, r]
 
 # Visualize optimization functions
 X = np.arange(domain_x[0], domain_x[1], 0.05)
 Y = np.arange(domain_y[0], domain_y[1], 0.05)
 X_mesh, Y_mesh = np.meshgrid(X, Y)
 
-#Z = -1*ackley([X, Y])
-Z = -1*himmelblau([X_mesh, Y_mesh])
+Z = ackley([X_mesh, Y_mesh])[0]
+Z1 = himmelblau([X_mesh, Y_mesh])[0]
 
 # fig = plt.figure()
-# ax = fig.add_subplot(111, projection='3d')
+# ax = fig.add_subplot(211, projection='3d')
 # ax.plot_surface(X_mesh, Y_mesh, Z, cmap=cm.viridis)
+# ax = fig.add_subplot(212, projection='3d')
+# ax.plot_surface(X_mesh, Y_mesh, Z1, cmap=cm.viridis)
 # plt.show()
 #
 # plt.pause(0.05)
@@ -117,7 +119,7 @@ mnist_init_weights = mnist_nn_model.get_weights()
 
 # weights = mnist_nerualNet.get_weights()
 # in_shape = mnist_nerualNet.input_shape
-# mnist_nerualNet.summary()
+#mnist_nn_model.summary()
 
 ##############################
 # BOSTON HOUSING PRICE DATASET
@@ -136,7 +138,7 @@ boston_nn_model.compile(SGD(), loss='mean_squared_error', metrics=['accuracy'])
 boston_neuralNet = modelPackage(boston_nn_model, X_test_boston, Y_test_boston)
 
 # Neural Net Initial Weights
-boston_init_weights = boston_nn_model.get_weights()
+#boston_init_weights = boston_nn_model.get_weights()
 
 # weights = boston_nn_model.get_weights()
 # in_shape = boston_nn_model.input_shape
@@ -156,10 +158,10 @@ mean2 = [4, 4]
 cov2 = [[1, 0], [0, 1]]
 c2 = np.random.multivariate_normal(mean2, cov2, 5000)
 
-plt.plot(c1[:][:,0], c1[:][:,1], 'x')
-plt.plot(c2[:][:,0], c2[:][:,1], 'x')
-plt.axis('equal')
-#plt.show()
+# plt.plot(c1[:][:,0], c1[:][:,1], 'x')
+# plt.plot(c2[:][:,0], c2[:][:,1], 'x')
+# plt.axis('equal')
+# plt.show()
 
 # Create dataset
 gaus_toyData = np.zeros((c1.shape[0]+c2.shape[0], 2))
@@ -194,4 +196,4 @@ toy_gauss_neuralNet = modelPackage(toy_gauss_nn_model, X_test_toyGaus, Y_test_to
 toy_gauss_init_weights = toy_gauss_nn_model.get_weights()
 
 
-#raw_input('Press Enter to exit')
+# raw_input('Press Enter to exit')
